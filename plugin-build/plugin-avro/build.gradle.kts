@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm")
     `java-gradle-plugin`
@@ -7,6 +5,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":plugin-base"))
     implementation(kotlin("stdlib"))
     implementation(gradleApi())
 
@@ -14,15 +13,21 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
+
+kotlin {
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
+}
+// tasks.withType<KotlinCompile> {
+//    kotlinOptions {
+//        jvmTarget = JavaVersion.VERSION_1_8.toString()
+//    }
+// }
 
 gradlePlugin {
     plugins {
@@ -54,7 +59,7 @@ tasks.named("check").configure {
 
 tasks.register("setupPluginUploadFromEnvironment") {
     group = "publishing"
-    description = "Configures the publishing keys for Gradle Plugin Portal"
+    description = "sets up environment variables required for an upload task."
     doLast {
         val key = System.getenv("GRADLE_PUBLISH_KEY")
         val secret = System.getenv("GRADLE_PUBLISH_SECRET")

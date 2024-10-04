@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm")
     `java-gradle-plugin`
@@ -9,18 +7,50 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(gradleApi())
+    implementation(libs.kotlinx.serialization.hocon)
+    implementation(libs.hocon4k)
+    implementation(libs.jackson.kotlin)
+
+    // validation
+    implementation(libs.konform.validation.jvm)
+    // taxilang dependencies
+//    implementation(libs.taxi.compiler)
+    implementation(libs.logback.classic) {
+        because("taxi-compiler depends on logback")
+        version {
+            strictly("[1.4.13,1.5.8[")
+        }
+    }
+    implementation(libs.logback.core)
+    implementation(libs.slf4j)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.taxi.compiler) {
+        exclude(module = "ch.qos.logback:logback-classic")
+        // https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-45960
+    }
+    implementation(libs.taxi.packages) {
+        because("contains the taxi conf classes")
+    }
+    implementation(libs.taxi.cli)
+    // HOCON dependencies to read the taxi.conf file
+    implementation(libs.hoplite)
+    implementation(libs.hoplite.hocon)
+//    implementation(libs.lightbend.config)
 
     testImplementation(libs.junit)
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.json.assert)
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+kotlin {
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 }
 
@@ -54,7 +84,7 @@ tasks.named("check").configure {
 
 tasks.register("setupPluginUploadFromEnvironment") {
     group = "publishing"
-    description = "Configures the publishing keys for Gradle Plugin Portal"
+    description = "sets up and verifies the Gradle Properties necessary for uploading the plugin to the repository"
     doLast {
         val key = System.getenv("GRADLE_PUBLISH_KEY")
         val secret = System.getenv("GRADLE_PUBLISH_SECRET")

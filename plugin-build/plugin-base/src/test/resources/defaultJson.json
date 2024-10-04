@@ -1,0 +1,41 @@
+{
+    "name": "io.truthencode/gradleInt",
+    "version": "0.0.1",
+    "sourceRoot": ".",
+    "output": "dist/",
+    "dependencies": {},
+    "repositories": [],
+    "plugins": {},
+    "pluginSettings": {
+        "repositories": [],
+        "localCache": "~/.taxi/plugins",
+        "localCachePath": "/home/adarro/.taxi/plugins"
+    },
+    "publishToRepository": null,
+    "credentials": [],
+    "taxiHome": "file:///home/adarro/.taxi/",
+    "linter": {},
+    "additionalSources": {},
+    "taxiConfFile": null,
+    "identifier": {
+        "name": {
+            "organisation": "io.truthencode",
+            "name": "gradleInt",
+            "id": "io.truthencode/gradleInt"
+        },
+        "version": "0.0.1",
+        "id": "io.truthencode/gradleInt/0.0.1",
+        "fileSafeIdentifier": "gradleInt-0.0.1",
+        "semver": {
+            "majorVersion": 0,
+            "minorVersion": 0,
+            "preReleaseVersion": "",
+            "buildMetadata": "",
+            "patchVersion": 1,
+            "normalVersion": "0.0.1"
+        }
+    },
+    "dependencyPackages": [],
+    "packageRootPath": null,
+    "sourceRootPath": null
+}

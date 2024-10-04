@@ -1,5 +1,13 @@
 import io.gitlab.arturbosch.detekt.Detekt
 
+repositories {
+    mavenCentral()
+    google()
+    maven {
+        name = "OrbitalHQ"
+        url = uri("https://repo.orbitalhq.com/release")
+    }
+}
 plugins {
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.pluginPublish) apply false
@@ -13,8 +21,16 @@ allprojects {
     version = property("VERSION").toString()
 
     apply {
-        plugin(rootProject.libs.plugins.detekt.get().pluginId)
-        plugin(rootProject.libs.plugins.ktlint.get().pluginId)
+        plugin(
+            rootProject.libs.plugins.detekt
+                .get()
+                .pluginId,
+        )
+        plugin(
+            rootProject.libs.plugins.ktlint
+                .get()
+                .pluginId,
+        )
     }
 
     ktlint {
@@ -43,6 +59,8 @@ tasks.withType<Detekt>().configureEach {
 }
 
 tasks.register("clean", Delete::class.java) {
+    group = "other"
+    description = "Cleans the build directory"
     delete(rootProject.layout.buildDirectory)
 }
 
