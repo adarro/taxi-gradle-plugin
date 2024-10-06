@@ -8,7 +8,6 @@ import io.truthencode.gradle.plugin.taxi.command.TaxiPublishCommandTask
 import io.truthencode.gradle.plugin.taxi.command.TaxiPublishPluginCommandTask
 import io.truthencode.gradle.plugin.taxi.command.TaxiSetVersionCommandTask
 import io.truthencode.gradle.plugin.taxi.command.TaxiVersionBumpCommandTask
-import io.truthencode.gradle.plugin.taxi.util.LazyLogging
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
@@ -17,9 +16,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.notExists
 
 @Suppress("UnnecessaryAbstractClass")
-abstract class TaxiPlugin :
-    Plugin<Project>,
-    LazyLogging {
+abstract class TaxiPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         // Add the 'taxi' extension object, will keep reference once needed tasks are implemented
         project.extensions.create(TaxiExtension.TAXI_EXTENSION_NAME, TaxiExtension::class.java, project)
@@ -87,8 +84,4 @@ abstract class TaxiPlugin :
              */
         }
     }
-
-    fun extension(project: Project): TaxiExtension = project.extensions.getByName(TaxiExtension.TAXI_EXTENSION_NAME) as TaxiExtension
-
-    private val log = logger()
 }

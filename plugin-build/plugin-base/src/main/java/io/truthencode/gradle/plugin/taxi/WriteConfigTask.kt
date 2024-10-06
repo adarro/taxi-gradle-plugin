@@ -73,11 +73,4 @@ abstract class WriteConfigTask :
             log.error("taxi.conf exists, not overwriting")
         }
     }
-
-    fun findConfig(path: String) {
-        val cp = Path(path)
-        if (cp.isAbsolute) {
-            log.error("taxi.conf path is $cp")
-        }
-    }
 }
