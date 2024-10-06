@@ -1,10 +1,9 @@
 package io.truthencode.gradle.plugin.taxi
 
 import com.sksamuel.hoplite.ConfigException
-import com.sksamuel.hoplite.ConfigLoaderBuilder
-import com.sksamuel.hoplite.addResourceSource
 import io.truthencode.gradle.plugin.taxi.util.LazyLogging
 import lang.taxi.packages.TaxiPackageProject
+import lang.taxi.packages.TaxiProjectLoader
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -22,7 +21,7 @@ open class TaxiExtension
         objects: ObjectFactory,
     ) : LazyLogging {
         companion object {
-            const val TAXI_EXTENSION_NAME = "Taxi"
+            const val TAXI_EXTENSION_NAME = "taxi"
         }
 
         private val log = logger()
@@ -44,23 +43,19 @@ open class TaxiExtension
         /**
          * Attempts to load a taxi.conf from the configPath
          */
-        fun projectFromPath(path: String): TaxiPackageProject? {
-            log.info("looking for taxi.conf on path $path")
+        private fun projectFromPath(path: String): TaxiPackageProject? {
+            log.debug("looking for taxi.conf on path $path")
             if (Path(path).exists() && Path("$path/taxi.conf").exists()) {
                 try {
                     val config =
-                        ConfigLoaderBuilder
-                            .default()
-                            .addResourceSource("$path/taxi.conf")
-                            .build()
-                            .loadConfigOrThrow<TaxiPackageProject>()
+                        TaxiProjectLoader(Path(path).resolve("taxi.conf")).load()
                     log.info("Successfully loaded $config")
                     return config
                 } catch (e: ConfigException) {
                     log.error("could not load taxi.conf", e)
                 }
             } else {
-                log.warn("could not load taxi.conf as path: ($path) does not exist ")
+                log.debug("could not load taxi.conf as path: ($path) does not exist ")
             }
             return null
         }
@@ -70,7 +65,7 @@ open class TaxiExtension
          * Attempts to read from [[configPath]], then applies default values using [[project]] name and version.
          * These values should be able to be overridden via the gradle extension.
          */
-        fun defaultProject(): TaxiPackageProject =
+        private fun defaultProject(): TaxiPackageProject =
             projectFromPath(configPath.get()) ?: TaxiPackageProject(
                 name = "${project.group}/${project.name}",
                 version = project.version.toString(),

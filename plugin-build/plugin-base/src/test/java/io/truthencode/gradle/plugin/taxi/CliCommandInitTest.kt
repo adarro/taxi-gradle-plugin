@@ -2,20 +2,21 @@ package io.truthencode.gradle.plugin.taxi
 
 import io.truthencode.gradle.plugin.taxi.command.TaxiInitCommandTask
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 
 /**
  * Test Taxi Init command from gradle build
  */
 class CliCommandInitTest {
-    @JvmField
-    @Rule
-    var testProjectDir: TemporaryFolder = TemporaryFolder()
+    @TempDir
+    lateinit var testProjectDir: File
 
     @Test
-    fun `plugin contains init task`() {
+    @DisplayName("plugin contains init task")
+    fun taskExistsTest() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(BASE_TAXI_PLUGIN_ID)
 

@@ -1,14 +1,16 @@
 plugins {
     kotlin("jvm")
     `java-gradle-plugin`
+    `jvm-test-suite`
     alias(libs.plugins.pluginPublish)
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(gradleApi())
-    implementation(libs.kotlinx.serialization.hocon)
-    implementation(libs.hocon4k)
+
     implementation(libs.jackson.kotlin)
 
     // validation
@@ -33,13 +35,18 @@ dependencies {
     }
     implementation(libs.taxi.cli)
     // HOCON dependencies to read the taxi.conf file
+    implementation(libs.lightbend.config)
     implementation(libs.hoplite)
     implementation(libs.hoplite.hocon)
-//    implementation(libs.lightbend.config)
+    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.hocon)
+    implementation(libs.hocon4k)
+    // https://mvnrepository.com/artifact/org.junit/junit-bom
+//    testImplementation(enforcedPlatform("org.junit:junit-bom:5.11.1"))
+//    testImplementation(enforcedPlatform(libs.junit.bom))
+//    testImplementation(libs.junit.jupiter.engine)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.hamcrest)
-    testImplementation(libs.json.assert)
+//    implementation(libs.lightbend.config)
 }
 
 java {
@@ -63,7 +70,8 @@ gradlePlugin {
             description = property("DESCRIPTION").toString()
             displayName = property("DISPLAY_NAME").toString()
             // Note: tags cannot include "plugin" or "gradle" when publishing
-            tags.set(listOf("sample", "template"))
+            @Suppress("UnstableApiUsage")
+            tags.set(listOf("taxi", "taxilang"))
         }
     }
 }
@@ -73,6 +81,9 @@ gradlePlugin {
     vcsUrl.set(property("VCS_URL").toString())
 }
 
+dokka {
+    moduleName.set("TaxiPluginBase")
+}
 // Use Detekt with type resolution for check
 tasks.named("check").configure {
     this.setDependsOn(
@@ -95,5 +106,25 @@ tasks.register("setupPluginUploadFromEnvironment") {
 
         System.setProperty("gradle.publish.key", key)
         System.setProperty("gradle.publish.secret", secret)
+    }
+}
+
+testing {
+    suites {
+        @Suppress("UnstableApiUsage")
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
+            dependencies {
+
+//                implementation("org.junit:junit-bom:5.11.1")
+                implementation(enforcedPlatform(libs.junit.bom))
+                implementation(libs.junit.jupiter.engine)
+                implementation(libs.hoplite.json)
+//                implementation(libs.junit.bom)
+                implementation(libs.kotest.runner.junit.jvm)
+                implementation(libs.hamcrest)
+                implementation(libs.json.assert)
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+    @Suppress("UnstableApiUsage")
     repositories {
         mavenCentral()
         google()
@@ -33,5 +34,5 @@ develocity {
 
 rootProject.name = "kotlin-gradle-plugin-template"
 
-include(":example")
+include(":example", ":exampleCustom", ":example-kotlin-plugin")
 includeBuild("plugin-build")

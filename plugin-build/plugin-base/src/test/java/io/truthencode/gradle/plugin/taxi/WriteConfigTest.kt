@@ -3,12 +3,12 @@ package io.truthencode.gradle.plugin.taxi
 import io.truthencode.gradle.plugin.taxi.util.LazyLogging
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.CoreMatchers
-import org.hamcrest.MatcherAssert.*
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.notANumber
-import org.junit.Assume.*
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.math.sqrt
 
@@ -16,9 +16,8 @@ import kotlin.math.sqrt
  * Test Taxi Init command from gradle build
  */
 class WriteConfigTest : LazyLogging {
-    @JvmField
-    @Rule
-    var testProjectDir: TemporaryFolder = TemporaryFolder()
+    @TempDir
+    lateinit var testProjectDir: File
 
     val log = logger()
 
@@ -35,8 +34,7 @@ class WriteConfigTest : LazyLogging {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply(BASE_TAXI_PLUGIN_ID)
         // may be a better way to do this
-        assumeTrue(project.extensions.getByName("taxi") is TaxiExtension)
-        val taxi = project.extensions.getByName("taxi") as TaxiExtension
+        assertTrue(project.extensions.getByName(TaxiExtension.TAXI_EXTENSION_NAME) is TaxiExtension)
     }
 
     @Test
@@ -46,18 +44,18 @@ class WriteConfigTest : LazyLogging {
 
     @Test
     fun `task generates taxi conf file`() {
-        testProjectDir.root.removeRecursively()
-        File(testProjectDir.root, "build.gradle.kts")
-            .writeText(
-                // using defaults
-                generateBuildFile(""),
-            )
+        val td = testProjectDir
+        td.removeRecursively()
+        val f = File(td, "build.gradle.kts")
+        // using defaults
+        f.writeText(generateBuildFile(""))
+        assumeTrue(f.exists())
 
-        val gradleResult = executeGradleRun("taxiWriteConfig", testProjectDir.root)
-        log.error("output: ${gradleResult.output}")
-        val confFile = File(testProjectDir.root, "taxi.conf")
+        executeGradleRun("taxiWriteConfig", td)
+
+        val confFile = File(td, "taxi.conf")
         assertThat("Configuration File exists", confFile.exists(), CoreMatchers.`is`(true))
         val generatedFileText = confFile.readText()
-        log.info(generatedFileText)
+        log.error(generatedFileText)
     }
 }
