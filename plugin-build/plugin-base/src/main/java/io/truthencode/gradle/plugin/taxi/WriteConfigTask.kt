@@ -2,7 +2,6 @@ package io.truthencode.gradle.plugin.taxi
 
 import io.github.config4k.toConfig
 import io.truthencode.gradle.plugin.taxi.util.LazyLogging
-import kotlinx.serialization.ExperimentalSerializationApi
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -10,6 +9,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import kotlin.io.path.Path
+import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
 
 abstract class WriteConfigTask :
     TaxiBaseTask(),
@@ -17,7 +18,29 @@ abstract class WriteConfigTask :
     init {
         description = "Writes configuration to taxi.conf"
         val taxi = project.extensions.getByName(TaxiExtension.TAXI_EXTENSION_NAME) as TaxiExtension
-        outputFile.convention(project.objects.fileProperty().fileValue(File(taxi.configPath.get())))
+        val taxiConfig = resolveTaxiConfig(taxi.configPath.get())
+        outputFile.convention(project.objects.fileProperty().fileValue(File(taxiConfig)))
+    }
+
+    private fun resolveTaxiConfig(dir: String): String {
+        val isDirectory = Path(dir).isDirectory()
+        val isFile = Path(dir).isRegularFile()
+        val isDefaultConfigFile = isFile && Path(dir).toFile().name.equals(DEFAULT_TAXI_CONFIG_NAME, true)
+        require(isDirectory || isDefaultConfigFile || isFile) {
+            "Directory or file does not exist: $dir"
+        }
+        return if (Path(dir).isDirectory()) {
+            Path(dir).resolve("taxi.conf").toString()
+        } else {
+            val f = Path(dir).toFile()
+            if (!f.name.equals("taxi.conf", true)) {
+                log.warn(
+                    "File $dir does not appear to be a taxi.conf file." +
+                        "  Taxi config may not be generated correctly.",
+                )
+            }
+            f.absolutePath
+        }
     }
 
     private val log = logger()
@@ -36,41 +59,27 @@ abstract class WriteConfigTask :
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
-    @OptIn(ExperimentalSerializationApi::class)
     @TaskAction
     fun writeConfig() {
-        logger.info("here is where we would write our taxi.conf")
+        logger.info("executing write taxi.conf task")
         val taxi = project.extensions.getByName(TaxiExtension.TAXI_EXTENSION_NAME) as TaxiExtension
-        var cp =
-            Path(taxi.configPath.get())
-                .let {
-                    if (it.isAbsolute) {
-                        it
-                    } else {
-                        Path(project.projectDir.absolutePath).resolve(
-                            it,
-                        )
-                    }
-                }.toFile()
-        log.error("taxi.conf path is $cp")
-
-        log.error("taxi.conf exists: ${cp.exists()}")
-        if (cp.isFile && (!cp.exists() || overwrite.get())) {
+        val cp = outputFile.get().asFile
+        log.debug("taxi.conf path is {}", cp)
+        log.debug("outputFile: ${outputFile.get().asFile.absolutePath}")
+        log.debug("taxi.conf exists: ${cp.exists()}")
+        log.debug("isFile:{}\nexists:{}\noverwrite:{}", cp.isFile, cp.exists(), overwrite.get())
+        if (!cp.exists() || (cp.isFile() && overwrite.get())) {
             if (log.isDebugEnabled) {
                 val msg = if (cp.exists()) "overwriting" else "creating"
                 log.debug("$msg taxi.conf")
             }
 
             val tPackage = taxi.taxiConfig.get().toConfig("taxi")
-            val data =
-                tPackage
-                    .root()
-                    .toMap()["taxi"]
-                    ?.render(optHocon)
-            log.error("writing to file: \n$data")
+            val data = tPackage.root().toMap()["taxi"]?.render(optHocon)
+            log.debug("writing to file: \n$data")
             File(cp.toString()).printWriter().use { out -> out.println(data) }
         } else {
-            log.error("taxi.conf exists, not overwriting")
+            log.debug("taxi.conf exists, not overwriting")
         }
     }
 }

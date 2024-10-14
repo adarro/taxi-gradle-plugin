@@ -24,7 +24,9 @@ val optHocon: ConfigRenderOptions? =
         .setFormatted(true)
 
 const val DEFAULT_TAXI_SOURCE_ROOT = "src/"
+const val DEFAULT_TAXI_CONFIG_NAME = "taxi.conf"
 
+// Task IDs
 const val TAXI_VERSION_BUMP_TASK_NAME = "taxiVersionBump"
 const val TAXI_PUBLISH_PLUGIN_TASK_NAME = "taxiPublishPlugin"
 const val TAXI_INSTALL_TASK_NAME = "taxiInstall"

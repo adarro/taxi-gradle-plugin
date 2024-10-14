@@ -4,13 +4,11 @@ import io.truthencode.gradle.plugin.taxi.util.LazyLogging
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.notANumber
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.math.sqrt
 
 /**
  * Test Taxi Init command from gradle build
@@ -38,11 +36,6 @@ class WriteConfigTest : LazyLogging {
     }
 
     @Test
-    fun testSquareRootOfMinusOneIsNotANumber() {
-        assertThat(sqrt(-1.0), CoreMatchers.`is`(notANumber()))
-    }
-
-    @Test
     fun `task generates taxi conf file`() {
         val td = testProjectDir
         td.removeRecursively()
@@ -50,7 +43,7 @@ class WriteConfigTest : LazyLogging {
         // using defaults
         f.writeText(generateBuildFile(""))
         assumeTrue(f.exists())
-
+        log.error(f.readText())
         executeGradleRun("taxiWriteConfig", td)
 
         val confFile = File(td, "taxi.conf")
