@@ -62,8 +62,8 @@ abstract class TaxiPlugin : Plugin<Project> {
 
     /**
      * Adds the taxi source root to the project source sets
-     * Unfortunately, until [Declarative Gradle](https://declarative.gradle.org/) happens, we need to add this as a Java Sourceset
-     * and have the Java plugin applied.
+     * Unfortunately, until [Declarative Gradle](https://declarative.gradle.org/) happens,
+     * we need to add this as a Java Sourceset and have the Java plugin applied.
      */
     fun setupSourceSets(project: Project) {
         val ext = project.extensions.getByType(TaxiExtension::class.java)
