@@ -1,3 +1,5 @@
+@file:Suppress("detekt:MatchingDeclarationName")
+
 package io.truthencode.gradle.plugin.taxi
 
 import org.gradle.testkit.runner.BuildResult

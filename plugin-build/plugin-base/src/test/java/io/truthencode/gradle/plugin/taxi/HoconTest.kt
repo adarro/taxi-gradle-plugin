@@ -34,7 +34,7 @@ import java.util.stream.Stream
 
 class HoconTest : LazyLogging {
     val log = logger()
-    val optJson =
+    val optJson: ConfigRenderOptions? =
         ConfigRenderOptions
             .concise()
             .setOriginComments(false)
@@ -76,7 +76,7 @@ class HoconTest : LazyLogging {
 
     @Test
     fun loadDefaultTaxiConfigViaHoplite() {
-        var resource = FileResourceUtil.getFileFromResource("taxi.conf")
+        val resource = FileResourceUtil.getFileFromResource("taxi.conf")
         assumeTrue(resource.exists())
         Assertions.assertDoesNotThrow {
             ConfigLoaderBuilder
@@ -95,7 +95,7 @@ class HoconTest : LazyLogging {
         input: String,
     ) {
         log.error("running $label")
-        var resource = FileResourceUtil.getFileFromResource(input)
+        val resource = FileResourceUtil.getFileFromResource(input)
         assumeTrue(resource.exists())
         Assertions.assertDoesNotThrow {
             ConfigLoaderBuilder
@@ -114,7 +114,7 @@ class HoconTest : LazyLogging {
         input: String,
     ) {
         log.error("running $label")
-        var resource = FileResourceUtil.getFileFromResource(input)
+        val resource = FileResourceUtil.getFileFromResource(input)
         assumeTrue(resource.exists())
         Assertions.assertDoesNotThrow {
             TaxiProjectLoader(resource.toPath()).load().toConfig("taxi")
@@ -128,7 +128,8 @@ class HoconTest : LazyLogging {
 
         val expected = ConfigFactory.parseString(nakedConfig).root().render(optJson)
         val actual = taxi.root().toMap()["taxi"]?.render(optJson)
-        // using optJson one-off comparison as HOCON libraries mangle option particulars such as order or '=' vs ':' etc.
+        // using optJson one-off comparison as HOCON libraries mangle option
+        // particulars such as order or '=' vs ':' etc.
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT)
     }
 
@@ -213,6 +214,7 @@ class HoconTest : LazyLogging {
         return mapper
     }
 
+    @Suppress("ktlint:standard:max-line-length", "detekt:MaxLineLength")
     fun taxiPackage(): TaxiPackageProject = TaxiPackageProject(name = "io.truthencode/taxigradle", version = "0.1.0", sourceRoot = "src/")
 
     val nakedConfig =
