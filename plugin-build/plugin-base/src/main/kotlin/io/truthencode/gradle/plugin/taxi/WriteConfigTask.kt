@@ -2,6 +2,7 @@ package io.truthencode.gradle.plugin.taxi
 
 import io.github.config4k.toConfig
 import io.truthencode.gradle.plugin.taxi.util.LazyLogging
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -13,7 +14,7 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 
 abstract class WriteConfigTask :
-    TaxiBaseTask(),
+    DefaultTask(),
     LazyLogging {
     init {
         description = "Writes configuration to taxi.conf"

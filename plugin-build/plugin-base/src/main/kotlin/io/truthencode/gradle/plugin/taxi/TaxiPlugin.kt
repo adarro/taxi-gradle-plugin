@@ -8,6 +8,7 @@ import io.truthencode.gradle.plugin.taxi.command.TaxiPublishCommandTask
 import io.truthencode.gradle.plugin.taxi.command.TaxiPublishPluginCommandTask
 import io.truthencode.gradle.plugin.taxi.command.TaxiSetVersionCommandTask
 import io.truthencode.gradle.plugin.taxi.command.TaxiVersionBumpCommandTask
+import io.truthencode.gradle.plugin.taxi.util.GradleDependencyHelper.getDependencyBundle
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
@@ -26,8 +27,56 @@ abstract class TaxiPlugin : Plugin<Project> {
             project.plugins.apply(JavaPlugin::class.java)
         }
 
+        project.configurations.create("taxi") { c ->
+            val taxiVersion =
+                project.extensions
+                    .getByType(TaxiExtension::class.java)
+                    .taxiVersion
+                    .get()
+
+            c.isCanBeConsumed = false
+            c.isCanBeResolved = true
+            // May need to add this to regular dependencies
+            // https://stackoverflow.com/questions/55456832/how-to-add-dependency-to-configuration-in-gradle-plugin
+            c.defaultDependencies {
+                getDependencyBundle(
+                    names = listOf("taxi-cli", "package-manager"),
+                    group = "org.taxilang",
+                    version = taxiVersion,
+                    project = project,
+                ).forEach { d ->
+                    it.add(d)
+                }
+            }
+
+            getDependencyBundle(
+                names = listOf("taxi-cli", "package-manager"),
+                group = "org.taxilang",
+                version = taxiVersion,
+                project = project,
+            ).forEach { d ->
+                c.dependencies.add(d)
+            }
+        }
+
+        // add configuration for taxi dependencies
+
         setupSourceSets(project)
         project.tasks.apply {
+            // Environment / configuration checks (e.g. Orbital Repository availability
+            // [needed until taxi is consistently published to maven central
+            register(TAXI_VERIFY_ENVIRONMENT_TASK_NAME, VerifyTaxiEnvironmentTask::class.java) {
+                // Task configuration here
+            }
+            // Environment / configuration checks (e.g. Orbital Repository availability
+            // [needed until taxi is consistently published to maven central
+            register(TAXI_CHECK_ENVIRONMENT_TASK_NAME, CheckTaxiEnvironmentTask::class.java) {
+                // Task configuration here
+            }
+
+            register(TAXI_PUBLISH_PLUGIN_TASK_NAME, TaxiPublishPluginCommandTask::class.java) {
+                // Task configuration here
+            }
             // Taxi CLI tasks
             register(TAXI_BUILD_TASK_NAME, TaxiBuildCommandTask::class.java) {
                 // Task configuration here
@@ -48,9 +97,6 @@ abstract class TaxiPlugin : Plugin<Project> {
                 // Task configuration here
             }
             register(TAXI_ORBITAL_TASK_NAME, TaxiOrbitalCommandTask::class.java) {
-                // Task configuration here
-            }
-            register(TAXI_PUBLISH_PLUGIN_TASK_NAME, TaxiPublishPluginCommandTask::class.java) {
                 // Task configuration here
             }
             // General Taxi Tasks

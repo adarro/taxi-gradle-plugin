@@ -23,10 +23,18 @@ val optHocon: ConfigRenderOptions? =
         .setJson(false)
         .setFormatted(true)
 
+// Delete for production (hopefully)
+const val NYI = "Not Yet Implemented"
+const val TAXI_CONFIG_FILE = "taxi.conf"
 const val DEFAULT_TAXI_SOURCE_ROOT = "src/"
+const val TAXI_DEFAULT_REPOSITORY = "repo.orbitalhq.com"
 const val DEFAULT_TAXI_CONFIG_NAME = "taxi.conf"
+const val TAXI_DEFAULT_REPOSITORY_URL = "https://${TAXI_DEFAULT_REPOSITORY}"
+const val TAXI_DEFAULT_REPOSITORY_URL_SNAPSHOT = "${TAXI_DEFAULT_REPOSITORY_URL}/snapshot"
+const val TAXI_DEFAULT_REPOSITORY_URL_RELEASE = "${TAXI_DEFAULT_REPOSITORY_URL}/release"
 
-// Task IDs
+const val TAXI_VERIFY_ENVIRONMENT_TASK_NAME = "taxiVerifyEnvironment"
+const val TAXI_CHECK_ENVIRONMENT_TASK_NAME = "taxiCheckEnvironment"
 const val TAXI_VERSION_BUMP_TASK_NAME = "taxiVersionBump"
 const val TAXI_PUBLISH_PLUGIN_TASK_NAME = "taxiPublishPlugin"
 const val TAXI_INSTALL_TASK_NAME = "taxiInstall"
