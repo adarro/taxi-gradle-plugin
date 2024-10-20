@@ -10,8 +10,16 @@ plugins {
 
 subprojects {
     apply {
-        plugin(rootProject.libs.plugins.detekt.get().pluginId)
-        plugin(rootProject.libs.plugins.ktlint.get().pluginId)
+        plugin(
+            rootProject.libs.plugins.detekt
+                .get()
+                .pluginId,
+        )
+        plugin(
+            rootProject.libs.plugins.ktlint
+                .get()
+                .pluginId,
+        )
     }
 
     ktlint {
@@ -48,10 +56,13 @@ tasks.withType<DependencyUpdatesTask> {
 fun String.isNonStable() = "^[0-9,.v-]+(-r)?$".toRegex().matches(this).not()
 
 tasks.register("clean", Delete::class.java) {
+    group = "build"
+    description = "cleans build directory"
     delete(rootProject.layout.buildDirectory)
 }
 
 tasks.register("reformatAll") {
+    group = "code quality"
     description = "Reformat all the Kotlin Code"
 
     dependsOn("ktlintFormat")
@@ -59,11 +70,12 @@ tasks.register("reformatAll") {
 }
 
 tasks.register("preMerge") {
+    group = "code quality"
     description = "Runs all the tests/verification tasks on both top level and included build."
 
     dependsOn(":example:check")
-    dependsOn(gradle.includedBuild("plugin-build").task(":plugin:check"))
-    dependsOn(gradle.includedBuild("plugin-build").task(":plugin:validatePlugins"))
+    dependsOn(gradle.includedBuild("plugin-build").task(":plugin-base:check"))
+    dependsOn(gradle.includedBuild("plugin-build").task(":plugin-base:validatePlugins"))
 }
 
 tasks.wrapper {
